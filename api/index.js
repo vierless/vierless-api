@@ -7,19 +7,18 @@ const errorRoute = require('./routes/error');
 const imageProcessingRoutes = require('./routes/imageProcessing');
 const wpCredentialsRoute = require('./routes/wpCredentials.js');
 const slackRoutes = require('./routes/slack');
-const icsRoute = require('./routes/ics');
 
 const app = express();
 
 // Define allowed domains
-const allowedDomains = ['https://vierless.de', 'https://cf-vierless.webflow.io', 'https://slack.com', 'https://hook.eu1.make.com', 'https://hook.us1.make.com'];
+const allowedDomains = ['https://vierless.de', 'https://cf-vierless.webflow.io', 'https://slack.com'];
 
 // Apply security middleware to all routes
-app.use(securityMiddleware(allowedDomains, true));
+app.use(securityMiddleware(allowedDomains, false));
 
-// Body parsing middleware with increased limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the public directory
 app.use(express.static(path.join(process.cwd(), 'public')));
@@ -30,7 +29,6 @@ app.use('/api/error', errorRoute);
 app.use('/api/image', imageProcessingRoutes);
 app.use('/api/wp-credentials', wpCredentialsRoute);
 app.use('/api/slack', slackRoutes);
-app.use('/api/ics', icsRoute);
 
 
 // Root route
