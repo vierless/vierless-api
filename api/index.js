@@ -15,7 +15,7 @@ const app = express();
 const allowedDomains = ['https://vierless.de', 'https://cf-vierless.webflow.io', 'https://slack.com', 'https://hook.eu1.make.com', 'https://hook.us1.make.com'];
 
 // Apply security middleware to all routes
-app.use(securityMiddleware(allowedDomains, false));
+app.use(securityMiddleware(allowedDomains, true));
 
 // Body parsing middleware
 app.use(express.json());
