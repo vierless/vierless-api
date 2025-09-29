@@ -21,11 +21,29 @@ try {
 
 const app = express();
 
+// Very first middleware - log everything
+app.use((req, res, next) => {
+	console.log('=== FUNCTION ENTRY ===', new Date().toISOString());
+	console.log('Method:', req.method);
+	console.log('URL:', req.url);
+	console.log('Path:', req.path);
+	console.log('Headers:', JSON.stringify(req.headers, null, 2));
+	next();
+});
+
 // Define allowed domains
 const allowedDomains = ['https://vierless.de', 'https://cf-vierless.webflow.io', 'https://slack.com', 'https://hook.eu1.make.com', 'https://hook.us1.make.com'];
 
-// Apply security middleware to all routes
-app.use(securityMiddleware(allowedDomains, true));
+// Apply security middleware to all routes with error handling
+app.use((req, res, next) => {
+	console.log('=== BEFORE SECURITY MIDDLEWARE ===');
+	try {
+		securityMiddleware(allowedDomains, true)(req, res, next);
+	} catch (error) {
+		console.error('Security middleware error:', error);
+		next(error);
+	}
+});
 
 // Body parsing middleware
 app.use(express.json());
