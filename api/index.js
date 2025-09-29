@@ -7,7 +7,17 @@ const errorRoute = require('./routes/error');
 const imageProcessingRoutes = require('./routes/imageProcessing');
 const wpCredentialsRoute = require('./routes/wpCredentials.js');
 const slackRoutes = require('./routes/slack');
-const icsRoute = require('./routes/ics');
+let icsRoute;
+try {
+	icsRoute = require('./routes/ics');
+	console.log('ICS route loaded successfully');
+} catch (error) {
+	console.error('Failed to load ICS route:', error);
+	icsRoute = express.Router();
+	icsRoute.post('/convert', (req, res) => {
+		res.status(500).json({ error: 'ICS route failed to load', details: error.message });
+	});
+}
 
 const app = express();
 
