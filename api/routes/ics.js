@@ -27,6 +27,9 @@ router.post('/convert', (req, res) => {
 // Generate ICS file from structured data
 router.post('/generate', (req, res) => {
 	try {
+		console.log('=== ICS Generate Request ===');
+		console.log('Request body:', JSON.stringify(req.body, null, 2));
+
 		const {
 			summary,
 			description,
@@ -41,6 +44,8 @@ router.post('/generate', (req, res) => {
 			filename
 		} = req.body;
 
+		console.log('Extracted fields:', { summary, startDateTime, endDateTime });
+
 		if (!summary || !startDateTime || !endDateTime) {
 			return res.status(400).json({
 				error: 'Required fields missing',
@@ -53,12 +58,17 @@ router.post('/generate', (req, res) => {
 
 		// Format datetime (expect ISO format, convert to ICS format)
 		const formatDateTime = (isoString) => {
-			return new Date(isoString).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+			console.log('Formatting datetime:', isoString);
+			const result = new Date(isoString).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+			console.log('Formatted result:', result);
+			return result;
 		};
 
+		console.log('Formatting dates...');
 		const dtStart = formatDateTime(startDateTime);
 		const dtEnd = formatDateTime(endDateTime);
 		const dtStamp = formatDateTime(new Date().toISOString());
+		console.log('All dates formatted successfully');
 
 		// Build ICS content
 		let icsContent = `BEGIN:VCALENDAR
@@ -120,11 +130,16 @@ END:VCALENDAR`;
 
 		const outputFilename = filename || `${summary.replace(/[^a-zA-Z0-9]/g, '-')}-${Date.now()}.ics`;
 
+		console.log('ICS content length:', icsContent.length);
+		console.log('Output filename:', outputFilename);
+		console.log('Setting headers and sending response...');
+
 		res.setHeader('Content-Type', 'text/calendar');
 		res.setHeader('Content-Disposition', `attachment; filename="${outputFilename}"`);
 		res.setHeader('Cache-Control', 'no-cache');
 
 		res.send(icsContent);
+		console.log('Response sent successfully');
 	} catch (error) {
 		console.error('Error in ICS generate endpoint:', error);
 		res.status(500).json({ error: 'Failed to generate ICS file', details: error.message });
