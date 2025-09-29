@@ -7,6 +7,7 @@ const errorRoute = require('./routes/error');
 const imageProcessingRoutes = require('./routes/imageProcessing');
 const wpCredentialsRoute = require('./routes/wpCredentials.js');
 const slackRoutes = require('./routes/slack');
+const icsRoute = require('./routes/ics');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/error', errorRoute);
 app.use('/api/image', imageProcessingRoutes);
 app.use('/api/wp-credentials', wpCredentialsRoute);
 app.use('/api/slack', slackRoutes);
+app.use('/api/ics', icsRoute);
 
 // Root route
 app.get('/', async (req, res, next) => {
