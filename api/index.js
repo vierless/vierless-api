@@ -31,6 +31,15 @@ app.use(securityMiddleware(allowedDomains, true));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+	console.log(`=== REQUEST: ${req.method} ${req.path} ===`);
+	console.log('Full URL:', req.url);
+	console.log('Headers:', req.headers);
+	console.log('Body exists:', !!req.body);
+	next();
+});
+
 // Serve static files from the public directory
 app.use(express.static(path.join(process.cwd(), 'public')));
 
@@ -41,6 +50,12 @@ app.use('/api/image', imageProcessingRoutes);
 app.use('/api/wp-credentials', wpCredentialsRoute);
 app.use('/api/slack', slackRoutes);
 app.use('/api/ics', icsRoute);
+
+// Debug route directly in main app
+app.post('/api/ics/test', (req, res) => {
+	console.log('=== DIRECT TEST ROUTE HIT ===');
+	res.json({ message: 'Direct route works', body: req.body });
+});
 
 // Root route
 app.get('/', async (req, res, next) => {
