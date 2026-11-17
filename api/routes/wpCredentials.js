@@ -9,6 +9,12 @@ const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
 
 // Hilfsfunktionen
+
+// Values are placed inside single-quoted strings of an Airtable formula. Escaping the
+// backslash and the quote keeps a value from ending the string and changing the formula.
+// Real license keys and domains contain neither character, so lookups are unchanged.
+const escapeFormulaValue = (value) => String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
 const logRequest = async (licenseId, req, status, traceId, message = '') => {
 	try {
 		await base('Protokoll').create([
@@ -84,7 +90,7 @@ const fetchServiceAccounts = async (planName) => {
 		.select({
 			filterByFormula: `AND(
         {Status} = 'Aktiv',
-        FIND('${planName}', {Erlaubte Pläne})
+        FIND('${escapeFormulaValue(planName)}', {Erlaubte Pläne})
       )`,
 		})
 		.firstPage();
@@ -120,8 +126,8 @@ router.post('/verify-credentials', async (req, res) => {
 		const licenses = await base('Lizenzen')
 			.select({
 				filterByFormula: `AND(
-			  {🤖 Key} = '${license_key}',
-			  {Domain} = '${domain}'
+			  {🤖 Key} = '${escapeFormulaValue(license_key)}',
+			  {Domain} = '${escapeFormulaValue(domain)}'
 			)`,
 			})
 			.firstPage();
