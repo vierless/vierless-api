@@ -10,6 +10,14 @@ const server = express();
 server.set('trust proxy', true);
 app.set('trust proxy', true);
 
+// Traefik replaces X-Forwarded-For with the address of the Cloudflare edge. Cloudflare
+// passes the real client address in CF-Connecting-IP; hand that to Express as req.ip.
+server.use((req, res, next) => {
+	const clientIp = req.headers['cf-connecting-ip'];
+	if (clientIp) req.headers['x-forwarded-for'] = clientIp;
+	next();
+});
+
 // vercel.json sets these headers on every /api/* response. Keep them as defaults so
 // callers see the same responses; the app overrides them for allowed origins.
 server.use('/api', (req, res, next) => {
